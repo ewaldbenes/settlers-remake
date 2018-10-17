@@ -19,24 +19,26 @@ import jsettlers.common.images.EImageLinkType;
 import jsettlers.common.images.ImageLink;
 import jsettlers.common.images.OriginalImageLink;
 import jsettlers.common.images.TextureMap;
+import jsettlers.graphics.image.GuiImage;
 import jsettlers.graphics.image.Image;
 import jsettlers.graphics.image.ImageIndexFile;
 import jsettlers.graphics.image.LandscapeImage;
 import jsettlers.graphics.image.NullImage;
 import jsettlers.graphics.image.SingleImage;
 import jsettlers.graphics.image.reader.AdvancedDatFileReader;
-import jsettlers.graphics.image.reader.DatFileReader;
-import jsettlers.graphics.image.reader.DatFileSet;
 import jsettlers.graphics.image.reader.DatFileType;
-import jsettlers.graphics.image.reader.EmptyDatFile;
-import jsettlers.graphics.image.reader.custom.graphics.CustomGraphicsInterceptor;
+import jsettlers.graphics.image.reader.bytereader.ByteReader;
+import jsettlers.graphics.image.reader.translator.DatBitmapTranslator;
+import jsettlers.graphics.image.reader.translator.LandscapeTranslator;
 import jsettlers.graphics.image.reader.versions.DefaultGfxFolderMapping;
 import jsettlers.graphics.image.reader.versions.GfxFolderMapping;
 import jsettlers.graphics.image.reader.versions.SettlersVersionMapping;
 import jsettlers.graphics.image.sequence.ArraySequence;
 import jsettlers.graphics.image.sequence.Sequence;
+import jsettlers.graphics.image.sequence.SequenceList;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
@@ -61,12 +63,52 @@ public final class ImageProvider {
 	 */
 	private static File lookupPath;
 
-	private static final DatFileReader EMPTY_DAT_FILE = new EmptyDatFile();
+	private static final AdvancedDatFileReader EMPTY_DAT_FILE = new AdvancedDatFileReader(null, null){
+		@Override
+		public SequenceList<Image> getSettlers() {
+			return new SequenceList<Image>() {
+				@Override
+				public Sequence<Image> get(int index) {
+					return null;
+				}
+
+				@Override
+				public int size() {
+					return 0;
+				}
+			};
+		}
+
+		@Override
+		public Sequence<LandscapeImage> getLandscapes() {
+			return new ArraySequence<>(new LandscapeImage[0]);
+		}
+
+		@Override
+		public Sequence<GuiImage> getGuis() {
+			return new ArraySequence<>(new GuiImage[0]);
+		}
+
+		@Override
+		public DatBitmapTranslator<LandscapeImage> getLandscapeTranslator() {
+			return new LandscapeTranslator(DatFileType.RGB555);
+		}
+
+		@Override
+		public ByteReader getReaderForLandscape(int index) throws IOException {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void generateImageMap(int width, int height, int[] sequences, String id) throws IOException {
+			throw new UnsupportedOperationException();
+		}
+	};
 
 	private static ImageProvider instance;
 
 	private final Queue<GLPreloadTask> tasks = new ConcurrentLinkedQueue<>();
-	private final Hashtable<Integer, DatFileReader> readers = new Hashtable<>();
+	private final Hashtable<Integer, AdvancedDatFileReader> readers = new Hashtable<>();
 
 	private GfxFolderMapping gfxFolderMapping = new DefaultGfxFolderMapping();
 
@@ -107,9 +149,9 @@ public final class ImageProvider {
 	 * 		The file number to search for.
 	 * @return The content as set or <code> null </code>
 	 */
-	public synchronized DatFileReader getFileReader(int file) {
+	public synchronized AdvancedDatFileReader getFileReader(int file) {
 		Integer integer = file;
-		DatFileReader set = this.readers.get(integer);
+		AdvancedDatFileReader set = this.readers.get(integer);
 		if (set == null) {
 			set = createFileReader(file);
 			this.readers.put(integer, set);
@@ -117,7 +159,7 @@ public final class ImageProvider {
 		return set;
 	}
 
-	public synchronized DatFileSet getFileSet(int file) {
+	public synchronized AdvancedDatFileReader getFileSet(int file) {
 		return getFileReader(file);
 	}
 
@@ -215,7 +257,7 @@ public final class ImageProvider {
 	 * @return The image, or an empty image.
 	 */
 	private SingleImage getLandscapeImage(int file, int seqnumber) {
-		DatFileSet set = getFileSet(file);
+		AdvancedDatFileReader set = getFileSet(file);
 
 		if (set != null) {
 			Sequence<LandscapeImage> landscapes = set.getLandscapes();
@@ -236,7 +278,7 @@ public final class ImageProvider {
 	 * @return The image.
 	 */
 	public SingleImage getGuiImage(int file, int seqnumber) {
-		DatFileSet set = getFileSet(file);
+		AdvancedDatFileReader set = getFileSet(file);
 
 		if (set != null) {
 			return (SingleImage) set.getGuis().getImageSafe(seqnumber);
@@ -255,7 +297,7 @@ public final class ImageProvider {
 	 * @return The settler sequence.
 	 */
 	public Sequence<? extends Image> getSettlerSequence(int file, int sequenceNumber) {
-		DatFileSet set = getFileSet(file);
+		AdvancedDatFileReader set = getFileSet(file);
 		if (set != null && set.getSettlers().size() > sequenceNumber) {
 			return set.getSettlers().get(sequenceNumber);
 		} else {
@@ -281,9 +323,9 @@ public final class ImageProvider {
 		return null;
 	}
 
-	private DatFileReader createFileReader(int fileIndex) {
+	private AdvancedDatFileReader createFileReader(int fileIndex) {
 		String numberString = String.format(Locale.ENGLISH, "%02d", fileIndex);
-		DatFileReader reader = EMPTY_DAT_FILE;
+		AdvancedDatFileReader reader = EMPTY_DAT_FILE;
 		for (DatFileType type : DatFileType.values()) {
 			String fileName = FILE_PREFIX + numberString + type.getFileSuffix();
 
@@ -295,7 +337,7 @@ public final class ImageProvider {
 			}
 		}
 
-		return CustomGraphicsInterceptor.prependCustomGraphics(fileIndex, reader, this);
+		return reader;
 	}
 
 	/**

@@ -112,7 +112,7 @@ import static jsettlers.graphics.image.reader.versions.GfxFolderMapping.DatFileM
  *
  * @author michael
  */
-public class AdvancedDatFileReader implements DatFileReader {
+public class AdvancedDatFileReader {
 	/**
 	 * Every dat file seems to have to start with this sequence.
 	 */
@@ -490,7 +490,6 @@ public class AdvancedDatFileReader implements DatFileReader {
 		}
 	}
 
-	@Override
 	public SequenceList<Image> getSettlers() {
 		return directSettlerList;
 	}
@@ -568,12 +567,10 @@ public class AdvancedDatFileReader implements DatFileReader {
 		return framePositions;
 	}
 
-	@Override
 	public Sequence<LandscapeImage> getLandscapes() {
 		return landscapeSequence;
 	}
 
-	@Override
 	public Sequence<GuiImage> getGuis() {
 		return guiSequence;
 	}
@@ -616,7 +613,6 @@ public class AdvancedDatFileReader implements DatFileReader {
 		}
 	}
 
-	@Override
 	public ByteReader getReaderForLandscape(int index) throws IOException {
 		initializeIfNeeded();
 		reader.skipTo(landscapeStarts[index]);
@@ -712,7 +708,6 @@ public class AdvancedDatFileReader implements DatFileReader {
 		return reader;
 	}
 
-	@Override
 	public void generateImageMap(int width, int height, int[] sequences, String id) throws IOException {
 		initializeIfNeeded();
 
@@ -731,7 +726,6 @@ public class AdvancedDatFileReader implements DatFileReader {
 		return torsoTranslator;
 	}
 
-	@Override
 	public DatBitmapTranslator<LandscapeImage> getLandscapeTranslator() {
 		return landscapeTranslator;
 	}

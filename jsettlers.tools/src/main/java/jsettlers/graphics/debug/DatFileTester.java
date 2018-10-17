@@ -34,7 +34,6 @@ import jsettlers.graphics.image.LandscapeImage;
 import jsettlers.graphics.image.SettlerImage;
 import jsettlers.graphics.image.SingleImage;
 import jsettlers.graphics.image.reader.AdvancedDatFileReader;
-import jsettlers.graphics.image.reader.DatFileReader;
 import jsettlers.graphics.image.reader.DatFileType;
 import jsettlers.graphics.image.sequence.SequenceList;
 import jsettlers.graphics.image.sequence.Sequence;
@@ -60,7 +59,7 @@ public class DatFileTester {
 
 	private static final Color[] colors = new Color[] { Color.WHITE };
 
-	private final DatFileReader reader;
+	private final AdvancedDatFileReader reader;
 	private final Region region;
 
 	private DatFileTester() throws IOException {
@@ -233,14 +232,14 @@ public class DatFileTester {
 				File file = findFileIgnoringCase(settlersGfxFolder, fileName);
 
 				if (file != null && file.exists()) {
-					DatFileReader reader = new AdvancedDatFileReader(file, TYPE);
+					AdvancedDatFileReader reader = new AdvancedDatFileReader(file, TYPE);
 					exportTo(new File(dir, "" + i), reader);
 				}
 			}
 		}
 	}
 
-	private static void exportTo(File dir, DatFileReader reader) {
+	private static void exportTo(File dir, AdvancedDatFileReader reader) {
 		export(reader.getSettlers(), new File(dir, "settlers"));
 		Sequence<GuiImage> guis = reader.getGuis();
 		if (guis.length() > 0) {
