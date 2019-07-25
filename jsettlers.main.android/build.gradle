@@ -55,7 +55,6 @@ android {
 dependencies {
     implementation project(':go.graphics.android')
     implementation project(':go.graphics')
-    implementation project(':jsettlers.graphics')
     implementation project(':jsettlers.logic')
     implementation project(':jsettlers.common')
     implementation project(':jsettlers.network')

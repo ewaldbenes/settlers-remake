@@ -30,7 +30,7 @@ import static jsettlers.graphics.image.reader.DatFileUtils.getDatFileName;
  */
 public class DatFileMappingComparator {
 
-	private static final String GRAPHICS_RESOURCE_DIRECTORY = "jsettlers.graphics/src/main/resources/jsettlers/graphics/image/reader/versions/";
+	private static final String GRAPHICS_RESOURCE_DIRECTORY = "jsettlers.common/src/main/resources/jsettlers/graphics/image/reader/versions/";
 
 	public static void main(String[] args) {
 		if (args.length < 2) {

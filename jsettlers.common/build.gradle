@@ -48,20 +48,40 @@ public final class CommitInfo {
 
 
 sourceSets {
-    main.java.srcDirs = [generatedTexturesDirectory + 'java', generatedCommitInfoDirectory + 'java', "src/main/java"]
+    main.java.srcDirs = [generatedTexturesDirectory + 'java', generatedCommitInfoDirectory + 'java', "src/main/java", 'src/gen/java']
     main.resources.srcDirs = [generatedTexturesDirectory + 'resources', 'src/main/resources']
+    main.output.dir('src/gen/java', buildBy: 'generateLayouts')
 }
 
 compileJava {
     dependsOn compileTextures
     dependsOn findGitRevision
+    dependsOn 'generateLayouts'
 }
 
 clean {
     delete generatedDirectory
+    delete 'src/gen'
 }
 
 dependencies {
     compile project(':go.graphics')
+    implementation 'com.google.code.gson:gson:2.8.2'
     testImplementation project(':jsettlers.testutils')
+}
+
+
+def layoutsFolder = './src/gen/java/jsettlers/graphics/ui/layout'
+
+task generateLayouts(dependsOn: tasks.getByPath(':layoutbuilder:jar'), type: JavaExec) {
+    doFirst {
+        delete(layoutsFolder)
+        mkdir(layoutsFolder)
+    }
+
+    classpath project(":layoutbuilder").sourceSets.main.runtimeClasspath
+    main = "jsettlers.graphics.ui.generate.LayoutConverter"
+    args = [file('./src/main/res/layout').absolutePath, file('./src/gen/java').absolutePath]
+    inputs.dir file('./src/main/res/layout')
+    outputs.dir file(layoutsFolder)
 }

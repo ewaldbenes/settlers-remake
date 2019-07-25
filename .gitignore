@@ -3,7 +3,7 @@ local.properties
 .gradle
 /build
 /*/build
-/jsettlers.graphics/layoutbuilder/build/
+layoutbuilder/build/
 
 # Generated sources
 /jsettlers.common/src/generated/
