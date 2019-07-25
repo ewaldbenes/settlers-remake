@@ -14,22 +14,26 @@
  *******************************************************************************/
 package jsettlers.graphics.ui.generate;
 
-import jsettlers.common.buildings.loader.BuildingFile;
-import jsettlers.common.images.ImageLink;
+import java.util.Locale;
 
 import org.xml.sax.Attributes;
 
 public class ImageArgument extends AbstractArgument {
 
-	private ImageLink image;
+	private String name;
+	private int imageIndex;
 
 	public ImageArgument(Attributes attributes) {
-		image = BuildingFile.getImageFromAttributes(attributes);
+		int file = Integer.parseInt(attributes.getValue("file"));
+		int sequence = Integer.parseInt(attributes.getValue("sequence"));
+		imageIndex = 0;
+		String type = attributes.getValue("type");
+		name = String.format(Locale.ENGLISH, "original_%d_%s_%d", file, type, sequence);
 	}
 
 	@Override
 	public String getArgumentSource() {
 		// FIXME: Escape string.
-		return "jsettlers.common.images.ImageLink.fromName(\"" + image.getName() + "\", " + image.getImageIndex() + ")";
+		return "jsettlers.common.images.ImageLink.fromName(\"" + name + "\", " + imageIndex + ")";
 	}
 }

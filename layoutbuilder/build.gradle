@@ -1,6 +1,5 @@
 apply plugin: 'java'
 
 dependencies {
-    implementation project(':jsettlers.common')
     implementation project(':go.graphics')
 }
