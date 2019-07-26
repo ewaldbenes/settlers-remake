@@ -67,7 +67,10 @@ clean {
 dependencies {
     compile project(':go.graphics')
     implementation 'com.google.code.gson:gson:2.8.2'
+    implementation project(':jsettlers.network')
+
     testImplementation project(':jsettlers.testutils')
+    testImplementation project(':jsettlers.main.swing')
 }
 
 
@@ -84,4 +87,20 @@ task generateLayouts(dependsOn: tasks.getByPath(':layoutbuilder:jar'), type: Jav
     args = [file('./src/main/res/layout').absolutePath, file('./src/gen/java').absolutePath]
     inputs.dir file('./src/main/res/layout')
     outputs.dir file(layoutsFolder)
+}
+
+task aiDifficultiesIT(type: Test, dependsOn: testClasses) {
+    include '**/AiDifficultiesIT*'
+}
+
+task autoReplayIT(type: Test, dependsOn: testClasses) {
+    include '**/AutoReplayIT*'
+}
+
+task replayValidationIT(type: Test, dependsOn: testClasses) {
+    include '**/ReplayValidationIT*'
+}
+
+task unitTest(type: Test) {
+    exclude 'jsettlers/integration/**'
 }
